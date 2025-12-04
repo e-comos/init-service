@@ -3,6 +3,7 @@
 
 // Basic type definitions for microkernel
 typedef unsigned char uint8_t;
+typedef unsigned short uint16_t;
 typedef unsigned int uint32_t;
 
 // System call definitions

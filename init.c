@@ -1,5 +1,6 @@
 #include "ecomos_types.h"
 #include "syscalls.h"
+#include "boot_animation.h"
 
 // Service registry
 static struct service services[16];
@@ -100,6 +101,9 @@ static void handle_service_message(struct ipc_message* msg) {
 // Main init process
 int main(void) {
     struct ipc_message msg;
+    
+    // Show boot animation
+    show_boot_animation();
     
     // Initialize core services
     start_core_services();

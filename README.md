@@ -27,20 +27,50 @@ Init provides service lookup via IPC messages:
 - `MSG_SERVICE_LOOKUP` - Find service by ID
 - `MSG_SERVICE_START` - Start service process
 
+## Project Structure
+
+```
+init-service/
+├── src/                    # Source files
+│   ├── init.c             # Main init service
+│   ├── init_entry.c       # Kernel entry point
+│   ├── boot_animation.c   # Boot animation
+│   └── boot_splash.c      # Boot splash screen
+├── include/               # Header files
+│   ├── ecomos_types.h     # System types
+│   ├── syscalls.h         # System call wrappers
+│   ├── boot_animation.h   # Animation interface
+│   └── boot_themes.h      # Animation themes
+├── tests/                 # Test programs
+│   ├── simple_test.c      # Basic animation test
+│   ├── test_animation.c   # Full animation test
+│   └── whistler_test.c    # Whistler theme test
+├── build/                 # Build output (created by make)
+├── Makefile              # Build configuration
+└── README.md             # This file
+```
+
 ## Build
 
 ```bash
-make
+make                # Build init.o for kernel linking
+make tests         # Build test programs
+make clean         # Clean build files
 ```
 
 Produces `init.o` object file for linking with kernel.
 
-## Files
+## Testing
 
-- `init.c` - Main init service implementation
-- `ecomos_types.h` - System type definitions
-- `syscalls.h` - System call wrappers
-- `Makefile` - Build configuration
+Run animation tests on host system:
+```bash
+cd tests
+./run_tests.sh
+```
+
+## Integration
+
+Link `init.o` with your kernel and call `init_service_entry()` to start the init service.
 
 ## Notes
 

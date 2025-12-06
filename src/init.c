@@ -1,6 +1,6 @@
-#include "ecomos_types.h"
-#include "syscalls.h"
-#include "boot_animation.h"
+#include "../include/ecomos_types.h"
+#include "../include/syscalls.h"
+#include "../include/boot_animation.h"
 
 // Service registry
 static struct service services[16];

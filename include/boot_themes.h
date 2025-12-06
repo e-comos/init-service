@@ -1,7 +1,7 @@
 #ifndef BOOT_THEMES_H
 #define BOOT_THEMES_H
 
-#include "ecomos_types.h"
+#include "../include/ecomos_types.h"
 
 // Theme selection
 #define THEME_DOTS      0

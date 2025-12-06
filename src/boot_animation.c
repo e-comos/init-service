@@ -1,6 +1,6 @@
-#include "boot_animation.h"
-#include "boot_themes.h"
-#include "syscalls.h"
+#include "../include/boot_animation.h"
+#include "../include/boot_themes.h"
+#include "../include/syscalls.h"
 
 // VGA text buffer
 static volatile uint16_t* vga_buffer = (uint16_t*)0xB8000;
@@ -84,7 +84,7 @@ void draw_progress_dots(int frame) {
 
 // Draw Whistler-style color bar
 void draw_color_bar(int frame) {
-    int bar_width = 40;
+    int bar_width = 20;
     int start_col = (SCREEN_WIDTH - bar_width) / 2;
     int row = 16;
     
@@ -94,12 +94,12 @@ void draw_color_bar(int frame) {
     }
     
     // Draw animated color segments
-    int segment_width = 8;
+    int segment_width = 4;
     int colors[] = {COLOR_RED, COLOR_GREEN, COLOR_BLUE, COLOR_YELLOW, COLOR_MAGENTA};
     
     for (int i = 0; i < 5; i++) {
         int seg_start = start_col + i * segment_width;
-        int progress = (frame - i * 3) % (segment_width + 5);
+        int progress = (frame - i * 2) % (segment_width + 3);
         
         for (int j = 0; j < segment_width && j < progress; j++) {
             if (seg_start + j < start_col + bar_width) {

@@ -5,7 +5,7 @@ Microkernel init service for E-comOS. Manages core system service startup and pr
 ## Architecture
 
 E-comOS follows pure microkernel design with only 5 system calls:
-- `SYS_IPC_SEND` - Cross-address space messaging
+- `SYS_ipc_send_msg` - Cross-address space messaging
 - `SYS_IPC_RECEIVE` - Blocking message receive
 - `SYS_THREAD_YIELD` - CPU yield to scheduler
 - `SYS_ADDRESS_MAP` - Physical page mapping (privileged)

@@ -42,7 +42,7 @@ msg.size = 40;
 msg.data[0] = MSG_SERVICE_REGISTER;
 msg.data[1] = MY_SERVICE_ID;
 strcpy((char*)&msg.data[8], "my_service");
-ipc_send(0, &msg);  // Send to init process
+ipc_send_msg(0, &msg);  // Send to init process
 ```
 
 ### 2. Service Lookup
@@ -52,7 +52,7 @@ msg.sender = my_process_id;
 msg.size = 8;
 msg.data[0] = MSG_SERVICE_LOOKUP;
 msg.data[1] = SERVICE_FILE_SYSTEM;
-ipc_send(0, &msg);
+ipc_send_msg(0, &msg);
 ipc_receive(&response);
 process_id_t fs_pid = *((process_id_t*)&response.data[4]);
 ```
@@ -66,6 +66,6 @@ Add to `include/ecomos_types.h`:
 Add to `start_core_services()` in `src/init.c`:
 ```c
 msg.data[1] = SERVICE_MY_NEW_SERVICE;
-ipc_send(SERVICE_MY_NEW_SERVICE, &msg);
+ipc_send_msg(SERVICE_MY_NEW_SERVICE, &msg);
 register_service(SERVICE_MY_NEW_SERVICE, SERVICE_MY_NEW_SERVICE, "my_new_service");
 ```

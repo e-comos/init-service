@@ -144,8 +144,8 @@ void show_whistler_animation(void) {
         delay(100);
     }
     
-    print_centered("Beta 1 Release", 20, COLOR_LIGHT_GREY);
-    print_centered("(c) E-comOS Microkernel Project", 22, COLOR_DARK_GREY);
+    print_centered("Version 0.0.1", 20, COLOR_LIGHT_GREY);
+    print_centered("(c) Saladin5101", 22, COLOR_DARK_GREY);
     
     delay(2000);
     clear_screen();

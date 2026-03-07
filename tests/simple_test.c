@@ -63,8 +63,8 @@ int main(void) {
     }
     
     // Version info
-    print_at(21, 35, "Beta 1 Release", ANSI_CYAN);
-    print_at(23, 25, "(c) E-comOS Microkernel Project", ANSI_WHITE);
+    print_at(21, 35, "Version 0.0.1", ANSI_CYAN);
+    print_at(23, 25, "Copyright (C) 2025,2026 E-comOS Operation System Project", ANSI_WHITE);
     
     usleep(2000000);
     clear_screen();

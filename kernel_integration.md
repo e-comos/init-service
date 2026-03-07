@@ -9,8 +9,8 @@ Your kernel must implement these components to integrate with init service:
 // In your kernel's interrupt handler (int 0x80)
 void syscall_handler(struct registers* regs) {
     switch (regs->eax) {
-        case SYS_IPC_SEND:
-            regs->eax = sys_ipc_send(regs->ebx, (struct ipc_message*)regs->ecx);
+        case SYS_ipc_send_msg:
+            regs->eax = sys_ipc_send_msg(regs->ebx, (struct ipc_message*)regs->ecx);
             break;
         case SYS_IPC_RECEIVE:
             regs->eax = sys_ipc_receive((struct ipc_message*)regs->ebx);
@@ -48,7 +48,7 @@ void create_init_process(void) {
 
 ### 3. IPC Implementation
 ```c
-int sys_ipc_send(thread_id_t target, struct ipc_message* msg) {
+int sys_ipc_send_msg(thread_id_t target, struct ipc_message* msg) {
     struct process* target_proc = get_process(target);
     if (!target_proc) return -1;
     
@@ -80,32 +80,31 @@ int sys_ipc_receive(struct ipc_message* msg) {
 
 ## Integration Steps
 
-1. **Link init.o with kernel**:
-   ```makefile
-   kernel.bin: kernel.o init.o
-       ld -m elf_i386 -T kernel.ld kernel.o init.o -o kernel.bin
-   ```
-
-2. **Start init process after kernel boot**:
+1. **Create init as kernel thread, not separate process**:
    ```c
    void kernel_main(void) {
        // Initialize kernel subsystems
        init_gdt();
        init_idt();
        init_paging();
+       init_scheduler();
        
-       // Create and start init process
-       create_init_process();
+       // Call init service directly (runs in kernel space)
+       init_service_entry();
        
-       // Start scheduler
-       enable_interrupts();
+       // Should not reach here - init takes over
        while(1) halt();
    }
    ```
 
-3. **Ensure init service can create other processes**:
-   - Implement process creation syscall or
-   - Pre-create service processes and let init wake them
+2. **Init service creates user processes**:
+   - Init runs in kernel space initially
+   - Creates actual service processes in user space
+   - Manages process lifecycle
+
+3. **System calls for user processes only**:
+   - Init service uses kernel functions directly
+   - User services use system calls (int 0x80)
 
 ## Memory Layout
 ```

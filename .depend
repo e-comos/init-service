@@ -1,0 +1,11 @@
+boot_animation.o: src/boot_animation.c src/../include/boot_animation.h \
+ src/../include/ecomos_types.h src/../include/boot_themes.h \
+ src/../include/../include/ecomos_types.h src/../include/syscalls.h
+boot_splash.o: src/boot_splash.c include/boot_animation.h \
+ include/ecomos_types.h include/syscalls.h
+init.o: src/init.c src/../include/ecomos_types.h \
+ src/../include/syscalls.h src/../include/ecomos_types.h \
+ src/../include/boot_animation.h
+init_entry.o: src/init_entry.c
+pure_animation.o: src/pure_animation.c
+syscalls.o: src/syscalls.c include/syscalls.h include/ecomos_types.h

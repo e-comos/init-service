@@ -27,5 +27,6 @@ void init_service_entry(void) {
 // Alternative: if kernel needs specific initialization
 void init_service_start(void* kernel_info) {
     // Optional: process kernel_info if needed
+    (void)kernel_info;  // Suppress unused parameter warning
     main();
 }

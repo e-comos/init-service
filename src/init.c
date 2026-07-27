@@ -3,17 +3,15 @@
 #include "../include/ebts_loader.h"
 #include "../include/boot_animation.h"
 
-// Message types
 #define MSG_SERVICE_REGISTER    1
 #define MSG_SERVICE_LOOKUP      2
 #define MSG_SERVICE_START       3
 
-// Kernel boot info passed at SHARED_BASE
 typedef struct {
-    uint64_t ebts_src;   // Source address of EBTS binary
-    uint64_t ebts_size;  // Size of EBTS binary
+    uint64_t ebts_src;   
+    uint64_t ebts_size;  
     uint32_t flags;
-} boot_info_t;
+} __attribute__((packed)) boot_info_t;
 
 static service_t services[16];
 static int service_count = 0;
@@ -72,17 +70,15 @@ int main(void) {
 
     start_core_services();
 
-    // Load and launch EBTS from kernel-provided boot info
     boot_info_t* binfo = (boot_info_t*)SHARED_BASE;
     if (binfo->ebts_src && binfo->ebts_size) {
         if (ebts_load(binfo->ebts_src, binfo->ebts_size) == 0) {
             register_service(SERVICE_SHELL, SERVICE_SHELL, "ebts_shell");
             pcb_t* pcb = ebts_prepare_pcb();
-            ebts_launch(pcb); // does not return on success
+            ebts_launch(pcb); 
         }
     }
 
-    // Fallback: service loop if EBTS launch failed
     ipc_message_t msg;
     while (1) {
         if (ipc_receive_msg(&msg, 0) == 0)

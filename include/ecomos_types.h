@@ -14,7 +14,7 @@ typedef int                int32_t;
 #define SYS_THREAD_YIELD    3
 #define SYS_ADDRESS_MAP     4
 #define SYS_IRQ_WAIT        5
-
+#define SYS_THREAD_CREATE   8
 // Process types
 #define PROCESS_TYPE_KERNEL     0
 #define PROCESS_TYPE_SERVICE    1

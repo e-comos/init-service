@@ -1,5 +1,4 @@
 #include "boot_animation.h"
-#include "syscalls.h"
 
 // Alternative splash screen with ASCII art
 void show_ascii_logo(void) {

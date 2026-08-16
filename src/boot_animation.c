@@ -1,6 +1,6 @@
 #include "../include/boot_animation.h"
 #include "../include/boot_themes.h"
-#include "../include/syscalls.h"
+#include <syscall.h>
 
 // VGA text buffer
 static volatile uint16_t* vga_buffer = (uint16_t*)0xB8000;

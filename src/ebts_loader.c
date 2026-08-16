@@ -1,5 +1,5 @@
 #include "../include/ebts_loader.h"
-#include "../include/syscalls.h"
+#include <syscall.h>
 
 // Kernel passes EBTS binary info via this struct at a known address
 typedef struct {
@@ -20,8 +20,24 @@ static void* memcpy_local(void* dst, const void* src, uint64_t n) {
 int ebts_load(uint64_t src_addr, uint64_t size) {
     if (!src_addr || !size || size > 0x100000) return -1;
 
-    address_map(EBTS_BASE, EBTS_BASE, 0x3); 
+    // 1. Map the entire program memory (code + BSS sections)
+    //    The total size 0x40000 (256KB) is enough to cover the BSS end at 0x508bdc.
+    //    This ensures that the .bss region (0x504ba0 ~ 0x508bdc) is mapped.
+    uint64_t total_size = 0x40000;
+    uint64_t pages = (total_size + PAGE_SIZE - 1) / PAGE_SIZE;
+    for (uint64_t p = 0; p < pages; p++) {
+        uint64_t va = EBTS_BASE + p * PAGE_SIZE;
+        syscall(SYS_ADDRESS_MAP, va, va, 0x3);   // User Read/Write
+    }
+
+    // 2. Copy only the file content (.text + .rodata + .data) to the target.
+    //    The .bss section is not present in the file, so it is not copied.
     memcpy_local((void*)EBTS_BASE, (const void*)src_addr, size);
+
+    // 3. Map the stack page (unchanged from original logic)
+    uint64_t stack_vaddr = EBTS_STACK_TOP - EBTS_STACK_SIZE;
+    syscall(SYS_ADDRESS_MAP, stack_vaddr, stack_vaddr, 0x3); // User Read/Write
+
     return 0;
 }
 
@@ -35,8 +51,8 @@ pcb_t* ebts_prepare_pcb(void) {
     for (uint64_t i = 0; i < sizeof(cpu_context_t); i++) p[i] = 0;
 
     ebts_pcb.ctx.rip    = EBTS_BASE;
-    ebts_pcb.ctx.rsp    = EBTS_STACK_TOP;
-    ebts_pcb.ctx.rflags = 0x202; 
+    ebts_pcb.ctx.rsp    = EBTS_STACK_TOP; // Top of the stack
+    ebts_pcb.ctx.rflags = 0x202;         // Interrupts enabled
 
     ebts_pcb.name[0] = 'e'; ebts_pcb.name[1] = 'b';
     ebts_pcb.name[2] = 't'; ebts_pcb.name[3] = 's';
@@ -48,15 +64,15 @@ pcb_t* ebts_prepare_pcb(void) {
 void ebts_launch(pcb_t* pcb) {
     pcb->state = PROC_RUNNING;
     
-    // Use the native 64-bit 'syscall' instruction.
-    // Avoid RCX for arguments, as 'syscall' clobbers it with the return RIP.
+    int64_t result;
+    // Pass Entry Point (RIP) in RDI and Stack Pointer (RSP) in RSI
     __asm__ volatile (
         "syscall\n\t"
-        : /* No output */
-        : "a" (SYS_THREAD_CREATE),
-          "D" (pcb->ctx.rip),  // Pass arg 1 in RDI (or whichever register your syscall_handler expects)
-          "S" (0),             // Pass arg 2 in RSI
-          "d" (0)              // Pass arg 3 in RDX
-        : "rcx", "r11", "memory" // Clobbers saved by the syscall instruction
+        : "=a" (result)
+        : "a" ((uint64_t)SYS_THREAD_CREATE),
+          "D" (pcb->ctx.rip),  // Arg 1: RIP -> RDI
+          "S" (pcb->ctx.rsp),  // Arg 2: RSP -> RSI (Fixed: was 0 before)
+          "d" (0)              // Arg 3: RDX
+        : "rcx", "r11", "memory"
     );
 }

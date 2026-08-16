@@ -32,7 +32,7 @@ typedef int                int32_t;
 #define EBTS_BASE       0x500000ULL
 #define SHARED_BASE     0x600000ULL
 #define EBTS_STACK_TOP  (SHARED_BASE + 0x100000ULL)
-
+#define EBTS_STACK_SIZE (1024 * 1024)
 typedef uint64_t process_id_t;
 typedef uint64_t service_id_t;
 
@@ -62,17 +62,6 @@ typedef struct {
     char            name[32];
 } pcb_t;
 
-// IPC message
-typedef struct {
-    uint32_t type;
-    uint32_t sender_pid;
-    uint32_t receiver_pid;
-    uint32_t data_len;
-    uint8_t  data[256];
-    uint64_t timestamp;
-    uint32_t flags;
-} ipc_message_t;
-
 // Service registry entry
 typedef struct {
     service_id_t    id;
@@ -81,7 +70,7 @@ typedef struct {
     uint32_t        capabilities;
 } service_t;
 
-int ipc_send_msg_msg(uint32_t type, uint32_t flags, uint32_t receiver_pid,
+int ipc_send_msg(uint32_t type, uint32_t flags, uint32_t receiver_pid,
                      uint32_t data_len, const void* data);
 
 #endif

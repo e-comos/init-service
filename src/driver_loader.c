@@ -1,4 +1,5 @@
 #include "../include/driver_loader.h"
+#include <syscall.h>
 
 static pcb_t driver_pcb;
 
@@ -12,7 +13,7 @@ static void* memcpy_local(void* dst, const void* src, uint64_t n) {
 int driver_load(uint64_t src_addr, uint64_t size) {
     if (!src_addr || !size || size > 0x100000) return -1;
 
-    address_map(DRIVER_BASE, DRIVER_BASE, 0x3); 
+    syscall(SYS_ADDRESS_MAP, DRIVER_BASE, DRIVER_BASE, 0x3); 
     memcpy_local((void*)DRIVER_BASE, (const void*)src_addr, size);
     return 0;
 }

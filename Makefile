@@ -1,3 +1,4 @@
+
 # ============================================================================
 # init-service Makefile
 # init-service: freestanding 64-bit flat binary loaded at 0x400000
@@ -5,10 +6,10 @@
 # drivers:      separate binary loaded by GRUB module to 0x700000
 # ============================================================================
 
-CC      = gcc
+CC      = x86_64-elf-gcc
 AS      = nasm
-LD      = ld
-OBJCOPY = objcopy
+LD      = x86_64-elf-ld
+OBJCOPY = x86_64-elf-objcopy
 
 ARCH = x86_64
 BITS = 64
@@ -33,7 +34,6 @@ DRIVERS_DIR = ../drivers
 INIT_C_SRCS = \
     $(SRCDIR)/init.c \
     $(SRCDIR)/init_entry.c \
-    $(SRCDIR)/syscalls.c \
     $(SRCDIR)/ebts_loader.c \
     $(SRCDIR)/driver_loader.c \
     $(SRCDIR)/boot_animation.c \
@@ -44,7 +44,6 @@ INIT_ASM_SRCS = $(SRCDIR)/start.asm
 INIT_OBJS = \
     $(OBJDIR)/init.o \
     $(OBJDIR)/init_entry.o \
-    $(OBJDIR)/syscalls.o \
     $(OBJDIR)/ebts_loader.o \
     $(OBJDIR)/driver_loader.o \
     $(OBJDIR)/boot_animation.o \
@@ -61,13 +60,14 @@ INIT_CFLAGS = \
     -mcmodel=kernel \
     -mno-red-zone \
     -I$(INCDIR) \
+    -I$(HOME)/.local/eclib/include \
     -g \
     -O2 \
     -Wall \
     -Wextra
 
 ASFLAGS  = -f elf64
-LDFLAGS  = -m elf_$(ARCH) -nostdlib -T link.ld
+LDFLAGS  = -m elf_$(ARCH) -Map=service.map -nostdlib -T link.ld -L$(HOME)/.local/eclib/lib -leclib
 
 # ============================================================================
 # EBTS sources (normal C, builds as separate binary at 0x500000)
@@ -140,7 +140,7 @@ $(TARGET): $(TARGET_ELF)
 
 $(TARGET_ELF): $(INIT_OBJS) link.ld
 	@echo "[LD] Linking: $@"
-	@$(LD) $(LDFLAGS) -o $@ $(INIT_OBJS)
+	@$(LD) -o $@ $(INIT_OBJS) $(LDFLAGS)
 
 # ---- EBTS standalone binary ----
 $(EBTS_BIN): $(EBTS_ELF)
